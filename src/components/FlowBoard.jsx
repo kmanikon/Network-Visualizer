@@ -89,16 +89,23 @@ const DeviceNode = ({ data, selected }) => {
 
       {/* Body */}
       <div style={{ padding: 10, background: '#fafafa' }}>
-        {data.ip && (
-          <div style={{ marginBottom: 4 }}>
-            <strong>IP:</strong> {data.ip}
-          </div>
-        )}
-        {data.description && (
-          <div style={{ fontSize: 12, color: '#555' }}>
-            {data.description}
-          </div>
-        )}
+        { Object.keys(data)
+          .map((key) => ({ field_name: key, field_val: data[key]}))
+          .filter((val) => val.field_name != 'label' && val.field_name != 'icon')
+          .map((val) => (
+            <div style={{display: 'flex', alignItems: 'center', gap: 5}}>
+            <div style={{ fontSize: 14, color: '#272727ff' }}>
+              <b>
+                {val.field_name}:
+              </b>
+            </div>
+            <div style={{ fontSize: 14, color: '#555' }}>
+                {val.field_val}
+            </div>
+            </div>
+          ))
+        
+        }
       </div>
 
       {/* Action bar */}
