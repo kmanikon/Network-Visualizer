@@ -1,14 +1,116 @@
-import React from 'react';
+import React, { memo, useState } from 'react';
+import {
+  Accordion,
+  AccordionGroup,
+  AccordionSummary,
+  AccordionDetails,
+  Input,
+  Stack,
+  Button
+} from '@mui/joy';
 import { FiCpu, FiServer, FiCloud, FiMonitor } from 'react-icons/fi';
 
-const devices = [
-  { type: 'PC', icon: <FiMonitor /> },
-  { type: 'Router', icon: <FiCpu /> },
-  { type: 'Server', icon: <FiServer /> },
-  { type: 'Cloud', icon: <FiCloud /> }
+// ✅ Configs defined once, outside component
+const deviceConfigs = [
+  { type: 'PC', icon: FiMonitor },
+  { type: 'Router', icon: FiCpu },
+  { type: 'Server', icon: FiServer },
+  { type: 'Cloud', icon: FiCloud }
 ];
 
+// ✅ Helper function to render device-specific forms
+const getFormForDevice = (type, addNode) => {
+  switch (type) {
+    case 'Server':
+      return (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+          }}
+        >
+          <Stack spacing={1}>
+            <Input placeholder="Server name" name="server_name" required />
+            <Input placeholder="IP address" name="ip_address" />
+            <Button type="submit" variant="solid">
+              Add Server
+            </Button>
+          </Stack>
+        </form>
+      );
+
+    case 'PC':
+      return (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+
+          }}
+        >
+          <Stack spacing={1}>
+            <Input placeholder="Hostname" name="hostname" required />
+            <Input placeholder="User" name="user" />
+            <Button type="submit" variant="solid">
+              Add PC
+            </Button>
+          </Stack>
+        </form>
+      );
+
+    case 'Router':
+      return (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+
+          }}
+        >
+          <Stack spacing={1}>
+            <Input placeholder="Router name" name="router_name" required />
+            <Input placeholder="Ports" name="ports" />
+            <Button type="submit" variant="solid">
+              Add Router
+            </Button>
+          </Stack>
+        </form>
+      );
+
+    case 'Cloud':
+      return (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+          }}
+        >
+          <Stack spacing={1}>
+            <Input placeholder="Provider" name="provider" required />
+            <Input placeholder="Region" name="region" />
+            <Button type="submit" variant="solid">
+              Add Cloud
+            </Button>
+          </Stack>
+        </form>
+      );
+
+    default:
+      return null;
+  }
+};
+
 const SideActions = ({ addNode }) => {
+  const [expanded, setExpanded] = useState(null);
+
   return (
     <div
       style={{
@@ -16,7 +118,7 @@ const SideActions = ({ addNode }) => {
         top: '12.5%',
         right: 20,
         height: '80%',
-        width: '200px',
+        width: '260px',
         background: '#FFFFFF',
         zIndex: 2,
         borderRadius: 8,
@@ -24,34 +126,44 @@ const SideActions = ({ addNode }) => {
         padding: 10,
         display: 'flex',
         flexDirection: 'column',
-        gap: 10
+        gap: 10,
+        overflow: 'auto'
       }}
     >
-      <h3 style={{ marginBottom: 10, fontWeight: 'bold' }}>Add Device</h3>
-      {devices.map((device) => (
-        <button
-          key={device.type}
-          onClick={() => addNode(device.type)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '8px 12px',
-            background: '#F0F0F0',
-            border: '1px solid #CCC',
-            borderRadius: 5,
-            cursor: 'pointer',
-            fontWeight: 500
-          }}
-        >
-          {device.icon} {device.type}
-        </button>
-      ))}
+      <h3 style={{ marginBottom: 10, fontWeight: 'bold', marginLeft: 10 }}>
+        Add Device
+      </h3>
+
+      <AccordionGroup sx={{ maxWidth: 400 }}>
+        {deviceConfigs.map((device, i) => (
+          <Accordion
+            key={i}
+            expanded={expanded === device.type}
+            onChange={(_, newExpanded) =>
+              setExpanded(newExpanded ? device.type : null)
+            }
+          >
+            <AccordionSummary>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {React.createElement(device.icon, { size: 18 })}
+                {device.type}
+              </div>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div style={{paddingTop: 10, paddingBottom: 10}}>
+                {getFormForDevice(device.type, addNode)}
+              </div>
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </AccordionGroup>
+
       <p style={{ marginTop: 'auto', fontSize: 12, color: '#666' }}>
-        Click and drag between nodes to connect. Select a node and press Delete to remove.
+        Click and drag between nodes to connect. Select a node and press Delete
+        to remove.
       </p>
     </div>
   );
 };
 
-export default SideActions;
+export default memo(SideActions);

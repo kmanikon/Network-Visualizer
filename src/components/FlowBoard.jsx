@@ -147,18 +147,31 @@ const FlowBoard = ({}) => {
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
     // Add node from SideActions
-    const addNode = (type) => {
-      const newNode = {
-        id: getId(),
-        position: {
-          x: Math.random() * (window.innerWidth - 200) + 100,
-          y: Math.random() * (window.innerHeight - 200) + 100
+    // const addNode = (type) => {
+    //   const newNode = {
+    //     id: getId(),
+    //     position: {
+    //       x: Math.random() * (window.innerWidth - 200) + 100,
+    //       y: Math.random() * (window.innerHeight - 200) + 100
+    //     },
+    //     type: 'custom',
+    //     data: { label: type, icon: getIcon(type) },
+    //   };
+    //   setNodes((nds) => nds.concat(newNode));
+    // };
+
+    const addNode = useCallback((type, formData) => {
+      setNodes((nds) => [
+        ...nds,
+        {
+          id: getId(),
+          position: { x: 200, y: 200 },
+          type: 'custom',
+          data: { label: type, ...formData },
         },
-        type: 'custom',
-        data: { label: type, icon: getIcon(type) },
-      };
-      setNodes((nds) => nds.concat(newNode));
-    };
+      ]);
+    }, [setNodes]);
+
 
     // Map type to icon
     const getIcon = (type) => {
