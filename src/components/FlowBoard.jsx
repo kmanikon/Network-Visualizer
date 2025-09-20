@@ -30,42 +30,113 @@ const initialEdges = []//[{ id: 'e1-2', source: '1', target: '2' }];
 let id = 1;
 const getId = () => `node-${id++}`;
 
-// Custom node component
-const DeviceNode = ({ data }) => {
+// Custom node component with more detail
+const DeviceNode = ({ data, selected }) => {
   return (
     <div
       style={{
-        padding: 10,
-        borderRadius: 8,
-        border: '2px solid #333',
+        borderRadius: 12,
+        border: selected ? '2px solid #0077FF' : '2px solid #ccc',
         background: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        minWidth: 90,
-        justifyContent: 'center',
-        fontWeight: 'bold',
-        position: 'relative' // needed for handles
+        boxShadow: selected
+          ? '0 0 10px rgba(0, 119, 255, 0.4)'
+          : '0 2px 6px rgba(0,0,0,0.15)',
+        width: 160,
+        fontFamily: 'sans-serif',
+        fontSize: 13,
+        overflow: 'hidden',
+        position: 'relative'
       }}
     >
-      {data.icon} {data.label}
+      {/* Header */}
+      <div
+        style={{
+          background: data.type === 'PC'
+            ? 'linear-gradient(135deg, #42a5f5, #1e88e5)'
+            : data.type === 'Server'
+            ? 'linear-gradient(135deg, #66bb6a, #388e3c)'
+            : data.type === 'Router'
+            ? 'linear-gradient(135deg, #ffa726, #f57c00)'
+            : 'linear-gradient(135deg, #ab47bc, #8e24aa)',
+          color: '#fff',
+          padding: '6px 10px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {data.icon}
+          <strong>{data.label}</strong>
+        </div>
 
-      {/* connection handles */}
+        {/* Status dot */}
+        <span
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
+            background:
+              data.status === 'online'
+                ? '#4caf50'
+                : data.status === 'offline'
+                ? '#f44336'
+                : '#ff9800',
+            display: 'inline-block'
+          }}
+        />
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: 10, background: '#fafafa' }}>
+        {data.ip && (
+          <div style={{ marginBottom: 4 }}>
+            <strong>IP:</strong> {data.ip}
+          </div>
+        )}
+        {data.description && (
+          <div style={{ fontSize: 12, color: '#555' }}>
+            {data.description}
+          </div>
+        )}
+      </div>
+
+      {/* Action bar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 8,
+          padding: '6px 8px',
+          borderTop: '1px solid #eee',
+          background: '#fff'
+        }}
+      >
+        <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
+          ⚙️
+        </button>
+        <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
+          ❌
+        </button>
+      </div>
+
+      {/* Handles */}
       <Handle
         type="target"
         position={Position.Left}
-        style={{ background: '#555' }}
+        style={{ background: '#555', top: '50%' }}
         isConnectable={true}
       />
       <Handle
         type="source"
         position={Position.Right}
-        style={{ background: '#555' }}
+        style={{ background: '#555', top: '50%' }}
         isConnectable={true}
       />
     </div>
   );
 };
+
 
 const FlowBoard = ({}) => {
 
