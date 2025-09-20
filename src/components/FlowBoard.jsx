@@ -259,7 +259,6 @@ const FlowBoard = ({}) => {
                 onEdgesChange={onEdgesChange}
                 onConnect={(e) => {
                   onConnect(e);
-                  console.log(edges)
                 }}
                 proOptions={proOptions}
                 //colorMode={'dark'}
