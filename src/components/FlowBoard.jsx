@@ -92,8 +92,8 @@ const DeviceNode = ({ data, selected }) => {
         { Object.keys(data)
           .map((key) => ({ field_name: key, field_val: data[key]}))
           .filter((val) => val.field_name != 'label' && val.field_name != 'icon')
-          .map((val) => (
-            <div style={{display: 'flex', alignItems: 'center', gap: 5}}>
+          .map((val, i) => (
+            <div key={i} style={{display: 'flex', alignItems: 'center', gap: 5}}>
             <div style={{ fontSize: 14, color: '#272727ff' }}>
               <b>
                 {val.field_name}:
