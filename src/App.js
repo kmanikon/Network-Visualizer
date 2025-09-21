@@ -1,5 +1,5 @@
 import React, { } from 'react';
-
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FlowPage from './pages/FlowPage';
 import './App.css';
 
@@ -29,7 +29,11 @@ function App() {
           //width: 'calc(100vw - 320px)'
           }}
         >
-        <FlowPage/>
+        <Router>
+          <Routes>
+            <Route path="/" element={<FlowPage />} />
+          </Routes>
+        </Router>
       </div>
     </div>
   );

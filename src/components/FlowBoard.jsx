@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { 
   IconButton 
 } from '@mui/joy';
@@ -14,29 +14,47 @@ import {
   Position,
   MarkerType
 } from '@xyflow/react';
-
+import LZString from 'lz-string';
+import { useSearchParams } from 'react-router-dom';
 import SideActions from './SideActions';
 import { FiCpu, FiServer, FiCloud, FiMonitor } from 'react-icons/fi';
 import { AiOutlineClose, AiOutlineEdit } from "react-icons/ai";
 
 import '@xyflow/react/dist/style.css';
 
-const initialNodes = [];
-const initialEdges = [];
+// const initialNodes = [];
+// const initialEdges = [];
 
 // Unique ID generator
-let id = 1;
-const getId = () => `node-${id++}`;
+//let id = 1;
+//const getId = () => `node-${id++}`;
+const getId = () => `node-${new Date()}`
 
 const excludedFields = [
   'editNode', 
   'deleteNode', 
   'label', 
+  'iconType',
   'icon'
 ];
 
 // Custom node component with details
 const DeviceNode = ({ id, data, selected }) => {
+  const getIcon = (type) => {
+    switch (type) {
+      case 'PC':
+        return <FiMonitor size={20} />;
+      case 'Router':
+        return <FiCpu size={20} />;
+      case 'Server':
+        return <FiServer size={20} />;
+      case 'Cloud':
+        return <FiCloud size={20} />;
+      default:
+        return <FiMonitor size={20} />;
+    }
+  };
+
   return (
     <div
       style={{
@@ -79,7 +97,7 @@ const DeviceNode = ({ id, data, selected }) => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {data.icon}
+          {getIcon(data.iconType)}
           <strong>{data.label}</strong>
         </div>
 
@@ -151,11 +169,36 @@ const DeviceNode = ({ id, data, selected }) => {
 };
 
 const FlowBoard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const proOptions = { hideAttribution: true };
+
+  const [initialNodes, setInitialNodes] = useState([]); //parsedData?.nodes || [];
+  const [initialEdges, setInitialEdges] = useState([]); //parsedData?.edges || [];
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [editingNode, setEditingNode] = useState(null);
+
+
+  useEffect(() => {
+    const savedData = searchParams.get('flow');
+    const parsedData = savedData
+      ? JSON.parse(LZString.decompressFromEncodedURIComponent(savedData))
+      : null;
+
+    setInitialNodes(parsedData?.nodes)
+    setInitialEdges(parsedData?.edges)
+
+    setNodes(parsedData?.nodes)
+    setEdges(parsedData?.edges)
+  }, [])
+
+  useEffect(() => {
+    //id = nodeTypes.length + 1
+    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify({ nodes, edges }));
+    setSearchParams({ flow: compressed });
+  }, [nodes, edges, setSearchParams]);
 
   const addNode = useCallback(
     (type, formData) => {
@@ -165,7 +208,7 @@ const FlowBoard = () => {
           id: getId(),
           position: { x: 200, y: 200 },
           type: 'custom',
-          data: { label: type, ...formData }
+          data: { label: type, iconType: type, ...formData }
         }
       ]);
     },
