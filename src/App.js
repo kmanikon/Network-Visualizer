@@ -1,40 +1,116 @@
-import React, { } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import FlowPage from './pages/FlowPage';
-import './App.css';
-
+import React, { useState } from "react";
+import { Button, IconButton, Snackbar } from "@mui/joy";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { FiCheckCircle } from "react-icons/fi";
+import { GrUndo, GrRedo } from "react-icons/gr";
+import FlowPage from "./pages/FlowPage";
+import "./App.css";
 
 function App() {
+
+  const [open, setOpen] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setOpen(true); // show snackbar
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   return (
     <div className="App">
-      <div style={{height: 58, width: '100%', backgroundColor: 'purple', paddingBottom: 2}}>
-        <div style={{
-            width: '100%', 
-            height: '100%', 
-            color: 'whitesmoke', 
-            fontFamily: 'cursive', 
-            fontSize: 30,
-            fontWeight: 520,  
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
+      <div
+        style={{
+          height: 58,
+          width: "100%",
+          backgroundColor: "purple",
+          paddingBottom: 2,
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          pickle
+          <div
+            style={{
+              color: "whitesmoke",
+              fontFamily: "cursive",
+              fontSize: 30,
+              fontWeight: 520,
+            }}
+          >
+            pickle
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              right: 20,
+              display: "flex-end",
+              color: "whitesmoke",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 20
+            }}
+          >
+
+            <div style={{display: 'flex', gap: 5}}>
+            <IconButton 
+              className="nav-btn"
+              style={{
+                backgroundColor: 'transparent', 
+                color: "whitesmoke"
+              }}
+            >
+              <GrUndo variant="plain" fontSize={22}/>
+            </IconButton>
+
+            <IconButton 
+              className="nav-btn" 
+              style={{
+                backgroundColor: 'transparent', 
+                color: "whitesmoke"
+              }}
+            >
+              <GrRedo variant="plain" fontSize={22} />
+            </IconButton>
+            </div>
+            
+            <Button variant="solid" onClick={handleExport}>
+              Export Workflow
+            </Button>
+          </div>
         </div>
       </div>
-      <div 
+
+      <div
         style={{
-          height: 'calc(100vh - 60px)', 
-          //width: 'calc(100vw - 320px)'
-          }}
-        >
+          height: "calc(100vh - 60px)",
+        }}
+      >
         <Router>
           <Routes>
             <Route path="/" element={<FlowPage />} />
           </Routes>
         </Router>
       </div>
+
+      <Snackbar
+        open={open}
+        onClose={() => setOpen(false)}
+        autoHideDuration={2000}
+        color="success"
+        variant="soft"
+      >
+        <FiCheckCircle/>
+        Workflow URL copied to clipboard!
+      </Snackbar>
     </div>
   );
 }

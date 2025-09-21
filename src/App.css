@@ -13,3 +13,11 @@
   pointer-events: auto;
 }
 
+.nav-btn {
+  opacity: 0.6;
+}
+
+.nav-btn:hover {
+  opacity: 0.8;
+}
+
