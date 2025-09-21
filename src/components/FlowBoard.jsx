@@ -41,10 +41,10 @@ const DeviceNode = ({ id, data, selected }) => {
     <div
       style={{
         borderRadius: 12,
-        border: selected ? '2px solid #0077FF' : '2px solid #ccc',
+        border: selected ? '2px solid #479bfcff' : '2px solid #ccc',
         background: '#fff',
         boxShadow: selected
-          ? '0 0 10px rgba(0, 119, 255, 0.4)'
+          ? '0 0 8px rgba(0, 119, 255, 0.4)'
           : '0 2px 6px rgba(0,0,0,0.15)',
         width: 160,
         fontFamily: 'sans-serif',
@@ -56,13 +56,21 @@ const DeviceNode = ({ id, data, selected }) => {
       {/* Header */}
       <div
         style={{
-          background: data.type === 'PC'
-            ? 'linear-gradient(135deg, #42a5f5, #1e88e5)'
-            : data.type === 'Server'
-            ? 'linear-gradient(135deg, #66bb6a, #388e3c)'
-            : data.type === 'Router'
-            ? 'linear-gradient(135deg, #ffa726, #f57c00)'
-            : 'linear-gradient(135deg, #ab47bc, #8e24aa)',
+          // background: data.label === 'PC'
+          //   ? 'linear-gradient(135deg, #42a5f5, #1e88e5)'
+          //   : data.label === 'Server'
+          //   ? 'linear-gradient(135deg, #66bb6a, #388e3c)'
+          //   : data.label === 'Router'
+          //   ? 'linear-gradient(135deg, #ffa726, #f57c00)'
+          //   : 'linear-gradient(135deg, #ab47bc, #8e24aa)',
+          background: data.label === 'PC'
+            ? 'linear-gradient(135deg, #5e35b1, #3949ab)'     // indigo
+            : data.label === 'Server'
+            ? 'linear-gradient(135deg, #ad1457, #880e4f)'     // magenta/wine
+            : data.label === 'Router'
+            ? 'linear-gradient(135deg, #00897b, #00695c)'     // teal (contrast)
+            : 'linear-gradient(135deg, #8e24aa, #6a1b9a)',    // purple default
+
           color: '#fff',
           padding: '6px 10px',
           display: 'flex',
