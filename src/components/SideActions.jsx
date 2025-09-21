@@ -99,9 +99,25 @@ const getFormForDevice = (type, addNode, deleteNode, editingNode, updateNode) =>
             />
           </>
         )}
-        <Button type="submit" variant="solid">
-          {isEditing ? 'Update' : `Add ${type}`}
-        </Button>
+
+        {isEditing ?
+          <div style={{display: 'flex', justifyContent: 'space-between', gap : 5}}>
+           <Button type="submit" variant="solid" fullWidth>
+              {'Update'}
+            </Button>
+
+            {/* dummy submit */}
+            <Button type="clear" variant="solid">
+              {'Cancel'}
+            </Button>
+          </div>
+
+          :
+           <Button type="submit" variant="solid">
+              {`Add ${type}`}
+          </Button>
+        }
+
       </Stack>
     </form>
   );
