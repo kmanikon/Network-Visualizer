@@ -107,6 +107,7 @@ function App() {
         autoHideDuration={2000}
         color="success"
         variant="soft"
+        anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
       >
         <FiCheckCircle/>
         Workflow URL copied to clipboard!
