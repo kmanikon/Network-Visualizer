@@ -127,15 +127,15 @@ const DeviceNode = ({ id, data, selected }) => {
 
       {/* Handles */}
       <Handle
-        type="target"
+        id="left"
         position={Position.Left}
-        style={{ background: '#555', top: '50%' }}
+        style={{ zIndex: 1, pointerEvents: 'auto', background: 'transparent', height: '100%', width: '20%', border: '0px solid transparent' }}
         isConnectable={true}
       />
       <Handle
-        type="source"
+        id="right"
         position={Position.Right}
-        style={{ background: '#555', top: '50%' }}
+        style={{ zIndex: 1, pointerEvents: 'auto', background: 'transparent', height: '100%', width: '20%', border: '0px solid transparent' }}
         isConnectable={true}
       />
     </div>
@@ -270,6 +270,7 @@ const FlowBoard = () => {
         proOptions={proOptions}
         nodeTypes={nodeTypes}
         connectionLineType="step"
+        connectionMode="loose"
       >
         <MiniMap
           style={{
