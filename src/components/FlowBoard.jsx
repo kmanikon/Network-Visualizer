@@ -171,7 +171,7 @@ const DeviceNode = ({ id, data, selected }) => {
 };
 
 const FlowBoard = () => {
-  const { fitView } = useReactFlow();
+  const { fitView, getViewport, screenToFlowPosition } = useReactFlow();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const proOptions = { hideAttribution: true };
@@ -206,11 +206,18 @@ const FlowBoard = () => {
 
   const addNode = useCallback(
     (type, formData) => {
+      const screenCenter = {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+      };
+
+      // Convert that to flow coordinates
+      const flowCenter = screenToFlowPosition(screenCenter);
       setNodes((nds) => [
         ...nds,
         {
           id: getId(),
-          position: { x: 200, y: 200 }, //{ x: flowCenter.x, y: flowCenter.y },
+          position: flowCenter,//{ x: 200, y: 200 }, //{ x: flowCenter.x, y: flowCenter.y },
           type: 'custom',
           data: { label: type, iconType: type, ...formData }
         }
