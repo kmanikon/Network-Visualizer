@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { 
   IconButton,
   Tooltip
@@ -19,6 +19,7 @@ import {
 import LZString from 'lz-string';
 import { useSearchParams } from 'react-router-dom';
 import SideActions from './SideActions';
+import { debounce } from 'lodash';
 import { FiCpu, FiServer, FiCloud, FiMonitor, FiCopy } from 'react-icons/fi';
 import { AiOutlineClose, AiOutlineEdit } from "react-icons/ai";
 
@@ -260,11 +261,19 @@ const FlowBoard = () => {
     fitView({ duration: 1000, padding: 0.8})
   }, []);
 
+  const updateUrl = useMemo(
+    () =>
+      debounce((nodes, edges) => {
+        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify({ nodes, edges }));
+        setSearchParams({ flow: compressed });
+      }, 500), // 300ms debounce
+    [setSearchParams]
+  );
+
   useEffect(() => {
-    //id = nodeTypes.length + 1
-    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify({ nodes, edges }));
-    setSearchParams({ flow: compressed });
-  }, [nodes, edges, setSearchParams]);
+    updateUrl(nodes, edges);
+    return () => updateUrl.cancel(); // cancel any pending calls on cleanup
+  }, [nodes, edges, updateUrl]);
 
   const addNode = useCallback(
     (type, formData) => {
@@ -307,7 +316,7 @@ const FlowBoard = () => {
   const updateNode = useCallback(
     (nodeId, updates) => {
       setNodes((nds) =>
-        nds.map((n) =>
+        nds?.map((n) =>
           n.id === nodeId
             ? {
                 ...n,
@@ -383,7 +392,7 @@ const FlowBoard = () => {
         updateNode={updateNode}
       />
       <ReactFlow
-        nodes={nodes.map((n) => ({
+        nodes={nodes?.map((n) => ({
           ...n,
           data: { ...n.data, deleteNode, editNode }
         }))}
