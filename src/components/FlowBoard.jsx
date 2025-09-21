@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { 
-  IconButton 
+  IconButton,
+  Tooltip
 } from '@mui/joy';
 import {
   ReactFlow,
@@ -18,7 +19,7 @@ import {
 import LZString from 'lz-string';
 import { useSearchParams } from 'react-router-dom';
 import SideActions from './SideActions';
-import { FiCpu, FiServer, FiCloud, FiMonitor } from 'react-icons/fi';
+import { FiCpu, FiServer, FiCloud, FiMonitor, FiCopy } from 'react-icons/fi';
 import { AiOutlineClose, AiOutlineEdit } from "react-icons/ai";
 
 import '@xyflow/react/dist/style.css';
@@ -38,6 +39,54 @@ const excludedFields = [
   'iconType',
   'icon'
 ];
+
+const CopyableText = ({ text }) => {
+  return (
+    <div
+      className="copyable-text"
+      style={{
+        position: "relative",
+        display: "inline",
+        alignItems: "center",
+        fontSize: 14,
+        color: "#555",
+        wordBreak: "break-all",
+        fontWeight: 600,
+        fontFamily: "monospace",
+        gap: 5,
+        zIndex: 2
+      }}
+    >
+      <span 
+        style={{
+          flex: 1, 
+          whiteSpace: 'pre-wrap'
+        }}
+      >
+        {text}
+      </span> 
+      <IconButton
+        className="copy-btn"
+        variant="plain"
+        onClick={(e) => {
+          e.stopPropagation()
+          navigator.clipboard.writeText(text)
+        }}
+        title="Copy to clipboard"
+        style={{
+          minHeight: 0, 
+          minWidth: 0, 
+          lineHeight: 10, 
+          verticalAlign: 'text-bottom', 
+          marginLeft: 5, 
+          //opacity: 0.8 
+        }}
+      >
+        <FiCopy size={14} style={{display: 'flex', alignItems: 'center'}}/>
+      </IconButton>
+    </div>
+  );
+};
 
 // Custom node component with details
 const DeviceNode = ({ id, data, selected }) => {
@@ -123,14 +172,19 @@ const DeviceNode = ({ id, data, selected }) => {
       {/* Body */}
       <div style={{ padding: 10, background: '#fafafa' }}>
         {Object.keys(data)
-          .map((key) => ({ field_name: key, field_val: data[key] }))
-          .filter((val) => !excludedFields.includes(val.field_name))
-          .map((val, i) => (
+          ?.map((key) => ({ field_name: key, field_val: data[key] }))
+          ?.filter((val) => !excludedFields.includes(val.field_name))
+          ?.map((val, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
               <div style={{ fontSize: 14, color: '#272727ff' }}>
                 <b>{val.field_name}:</b>
               </div>
-              <div style={{ fontSize: 14, color: '#555', wordBreak: 'break-all', fontWeight: 600, fontFamily: 'monospace' }}>{val.field_val}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 14, color: '#555', wordBreak: 'break-all', fontWeight: 600, fontFamily: 'monospace' }}>
+                <div>
+                  <CopyableText text={val.field_val}/>
+               
+                </div>  
+              </div>
             </div>
           ))}
       </div>
@@ -145,10 +199,18 @@ const DeviceNode = ({ id, data, selected }) => {
           background: '#fafafa'
         }}
       >
-        <IconButton size="sm" onClick={() => data.editNode(id)}>
+        <IconButton size="sm" onClick={(e) => {
+            e.stopPropagation()
+            data.editNode(id)
+          }}
+        >
           <AiOutlineEdit />
         </IconButton>
-        <IconButton size="sm" onClick={() => data.deleteNode(id)}>
+        <IconButton size="sm" onClick={(e) => {
+            e.stopPropagation()
+            data.deleteNode(id)
+          }}
+        >
           <AiOutlineClose />
         </IconButton>
       </div>

@@ -3,3 +3,13 @@
   height: 100vh;
 }
 
+.copy-btn {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.copyable-text:hover .copy-btn {
+  opacity: 0.8 !important;
+  pointer-events: auto;
+}
+
