@@ -253,11 +253,11 @@ const FlowBoard = () => {
       ? JSON.parse(LZString.decompressFromEncodedURIComponent(savedData))
       : null;
 
-    setInitialNodes(parsedData?.nodes)
-    setInitialEdges(parsedData?.edges)
+    setInitialNodes(parsedData?.nodes || [])
+    setInitialEdges(parsedData?.edges || [])
 
-    setNodes(parsedData?.nodes)
-    setEdges(parsedData?.edges)
+    setNodes(parsedData?.nodes || [])
+    setEdges(parsedData?.edges || [])
     fitView({ duration: 1000, padding: 0.8})
   }, []);
 
@@ -266,7 +266,8 @@ const FlowBoard = () => {
       debounce((nodes, edges) => {
         const compressed = LZString.compressToEncodedURIComponent(JSON.stringify({ nodes, edges }));
         setSearchParams({ flow: compressed });
-      }, 500), // 300ms debounce
+        //window.history.pushState(compressed, '', `?flow=${compressed}`);
+      }, 500), // 500ms debounce
     [setSearchParams]
   );
 
