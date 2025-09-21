@@ -186,7 +186,7 @@ const SideActions = ({ addNode, deleteNode, editingNode, updateNode }) => {
       </AccordionGroup>
 
       <p style={{ marginTop: 'auto', fontSize: 12, color: '#666' }}>
-        Click and drag between nodes to connect. Select a node and press Delete
+        Click and drag between nodes to connect. Select a node and press Backspace
         to remove.
       </p>
     </div>
