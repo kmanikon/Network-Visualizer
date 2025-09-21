@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
-import {
-  IconButton
+import React, { useCallback, useState } from 'react';
+import { 
+  IconButton 
 } from '@mui/joy';
 import {
   ReactFlow,
@@ -12,38 +12,30 @@ import {
   addEdge,
   Handle,
   Position,
-  MarkerType,
-  Node
+  MarkerType
 } from '@xyflow/react';
 
 import SideActions from './SideActions';
 import { FiCpu, FiServer, FiCloud, FiMonitor } from 'react-icons/fi';
-import { AiOutlineClose, AiOutlineEdit  } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineEdit } from "react-icons/ai";
 
-
-
-
-//import 'reactflow/dist/style.css';
 import '@xyflow/react/dist/style.css';
 
-const initialNodes = [
-  //{ id: '1', position: { x: window.innerWidth / 2, y: window.innerHeight / 2 + 100 }, data: { label: '1' } },
-  //{ id: '2', position: { x: window.innerWidth / 2, y: window.innerHeight / 2 - 100 }, data: { label: '2' } },
-];
-
-const initialEdges = []//[{ id: 'e1-2', source: '1', target: '2' }];
+const initialNodes = [];
+const initialEdges = [];
 
 // Unique ID generator
 let id = 1;
 const getId = () => `node-${id++}`;
 
 const excludedFields = [
-  'editNode',
-  'deleteNode',
-  'label',
+  'editNode', 
+  'deleteNode', 
+  'label', 
   'icon'
-]
-// Custom node component with more detail
+];
+
+// Custom node component with details
 const DeviceNode = ({ id, data, selected }) => {
   return (
     <div
@@ -102,23 +94,17 @@ const DeviceNode = ({ id, data, selected }) => {
 
       {/* Body */}
       <div style={{ padding: 10, background: '#fafafa' }}>
-        { Object.keys(data)
-          .map((key) => ({ field_name: key, field_val: data[key]}))
-          .filter((val) =>  !excludedFields.includes(val.field_name))
+        {Object.keys(data)
+          .map((key) => ({ field_name: key, field_val: data[key] }))
+          .filter((val) => !excludedFields.includes(val.field_name))
           .map((val, i) => (
-            <div key={i} style={{display: 'flex', alignItems: 'center', gap: 5}}>
-            <div style={{ fontSize: 14, color: '#272727ff' }}>
-              <b>
-                {val.field_name}:
-              </b>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ fontSize: 14, color: '#272727ff' }}>
+                <b>{val.field_name}:</b>
+              </div>
+              <div style={{ fontSize: 14, color: '#555' }}>{val.field_val}</div>
             </div>
-            <div style={{ fontSize: 14, color: '#555' }}>
-                {val.field_val}
-            </div>
-            </div>
-          ))
-        
-        }
+          ))}
       </div>
 
       {/* Action bar */}
@@ -126,20 +112,16 @@ const DeviceNode = ({ id, data, selected }) => {
         style={{
           display: 'flex',
           justifyContent: 'flex-end',
-          //gap: 8,
           padding: '0px 8px',
           borderTop: '1px solid #eee',
-          alightItems: 'center',
-          //background: '#fff'
-          //height: 40
           background: '#fafafa'
         }}
       >
-        <IconButton size="sm">
-          <AiOutlineEdit/>
+        <IconButton size="sm" onClick={() => data.editNode(id)}>
+          <AiOutlineEdit />
         </IconButton>
         <IconButton size="sm" onClick={() => data.deleteNode(id)}>
-          <AiOutlineClose/>
+          <AiOutlineClose />
         </IconButton>
       </div>
 
@@ -160,144 +142,154 @@ const DeviceNode = ({ id, data, selected }) => {
   );
 };
 
+const FlowBoard = () => {
+  const proOptions = { hideAttribution: true };
 
-const FlowBoard = ({}) => {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [editingNode, setEditingNode] = useState(null);
 
-    const proOptions = { hideAttribution: true };
-    
-
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-    // Add node from SideActions
-    // const addNode = (type) => {
-    //   const newNode = {
-    //     id: getId(),
-    //     position: {
-    //       x: Math.random() * (window.innerWidth - 200) + 100,
-    //       y: Math.random() * (window.innerHeight - 200) + 100
-    //     },
-    //     type: 'custom',
-    //     data: { label: type, icon: getIcon(type) },
-    //   };
-    //   setNodes((nds) => nds.concat(newNode));
-    // };
-
-    const addNode = useCallback((type, formData) => {
+  const addNode = useCallback(
+    (type, formData) => {
       setNodes((nds) => [
         ...nds,
         {
           id: getId(),
           position: { x: 200, y: 200 },
           type: 'custom',
-          data: { label: type, ...formData },
-        },
+          data: { label: type, ...formData }
+        }
       ]);
-    }, [setNodes]);
+    },
+    [setNodes]
+  );
 
-    const deleteNode = useCallback((nodeId) => {
+  const deleteNode = useCallback(
+    (nodeId) => {
       setNodes((nds) => nds.filter((n) => n.id !== nodeId));
       setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
-    }, [setNodes, setEdges]);
+    },
+    [setNodes, setEdges]
+  );
 
+  const editNode = useCallback(
+    (nodeId) => {
+      const node = nodes.find((n) => n.id === nodeId);
+      if (node) setEditingNode(node);
+    },
+    [nodes]
+  );
 
-    // Map type to icon
-    const getIcon = (type) => {
-      switch (type) {
-        case 'PC':
-          return <FiMonitor size={20} />;
-        case 'Router':
-          return <FiCpu size={20} />;
-        case 'Server':
-          return <FiServer size={20} />;
-        case 'Cloud':
-          return <FiCloud size={20} />;
-        default:
-          return <FiMonitor size={20} />;
-      }
-    };
+  const updateNode = useCallback(
+    (nodeId, updates) => {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === nodeId
+            ? {
+                ...n,
+                data: { ...n.data, ...updates }
+              }
+            : n
+        )
+      );
+      setEditingNode(null);
+    },
+    [setNodes]
+  );
 
-    // Handle connecting edges
-    const onConnect = useCallback(
-      (params) =>
-        setEdges((eds) =>
-          addEdge(
-            {
-              ...params,
-              id: `e-${params.source}-${params.target}-${Date.now()}`,
-              animated: true,
-              markerEnd: { type: MarkerType.Arrow },
-              type: 'step'
-            },
-            eds
-          )
-        ),
-      [setEdges]
-    );
+  // Map type to icon
+  const getIcon = (type) => {
+    switch (type) {
+      case 'PC':
+        return <FiMonitor size={20} />;
+      case 'Router':
+        return <FiCpu size={20} />;
+      case 'Server':
+        return <FiServer size={20} />;
+      case 'Cloud':
+        return <FiCloud size={20} />;
+      default:
+        return <FiMonitor size={20} />;
+    }
+  };
 
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            id: `e-${params.source}-${params.target}-${Date.now()}`,
+            animated: true,
+            markerEnd: { type: MarkerType.Arrow },
+            type: 'step'
+          },
+          eds
+        )
+      ),
+    [setEdges]
+  );
 
-    //const onConnect = useCallback((params) => setEdges(addEdge(params, edges)), [edges]);
+  const onNodeDelete = useCallback(
+    (event) => {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        setNodes((nds) => nds.filter((n) => !n.selected));
+        setEdges((eds) => eds.filter((e) => !e.selected));
+      }      
+    },
+    [setNodes, setEdges]
+  );
 
+  const nodeTypes = { custom: DeviceNode };
 
-    // Delete selected nodes/edges
-    const onNodeDelete = useCallback(
-      (event) => {
-        if (event.key === 'Delete' || event.key === 'Backspace') {
-          setNodes((nds) => nds.filter((n) => !n.selected));
-          setEdges((eds) => eds.filter((e) => !e.selected));
-        }
-      },
-      [setNodes, setEdges]
-    );
-
-    // Node types
-    const nodeTypes = { custom: DeviceNode };
-
-
-    return (
-        <div 
+  return (
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+        background: '#F0F0F0'
+      }}
+      tabIndex={0}
+      //onKeyDown={onNodeDelete}
+    >
+      <SideActions
+        addNode={addNode}
+        deleteNode={deleteNode}
+        editingNode={editingNode}
+        updateNode={updateNode}
+      />
+      <ReactFlow
+        nodes={nodes.map((n) => ({
+          ...n,
+          data: { ...n.data, deleteNode, editNode }
+        }))}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        proOptions={proOptions}
+        nodeTypes={nodeTypes}
+        connectionLineType="step"
+      >
+        <MiniMap
           style={{
-            height: '100%', 
-            width: '100%', 
-            background: '#F0F0F0'
+            position: 'relative',
+            left: 0,
+            top: 0,
+            width: 200,
+            height: 150,
+            background: '#FAFAFA',
+            display: 'block'
           }}
-          tabIndex={0}
-          onKeyDown={onNodeDelete}
-        >
-            <SideActions addNode={addNode} deleteNode={deleteNode}/>
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={(e) => {
-                  onConnect(e);
-                }}
-                proOptions={proOptions}
-                //colorMode={'dark'}
-                nodeTypes={nodeTypes}
-                connectionLineType="step"
-              >
-                <MiniMap 
-                  style={{
-                    position: 'relative', 
-                    left: 0, 
-                    top: 0, 
-                    width: 200, 
-                    height: 150, 
-                    background: '#FAFAFA',
-                    display: 'block',
-                  }}                   
-                  zoomable
-                  pannable
-                  //maskColor="rgba(255, 0, 0, 0.3)"
-                  nodeColor={() => '#c0c0c0ff'}
-                />
-                <Controls />
-                <Background />
-            </ReactFlow>
-        </div>
-    )
-}
+          zoomable
+          pannable
+          nodeColor={() => '#c0c0c0ff'}
+        />
+        <Controls />
+        <Background />
+      </ReactFlow>
+    </div>
+  );
+};
 
 export default FlowBoard;

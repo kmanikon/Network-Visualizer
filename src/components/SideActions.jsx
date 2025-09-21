@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionGroup,
@@ -10,7 +10,6 @@ import {
 } from '@mui/joy';
 import { FiCpu, FiServer, FiCloud, FiMonitor } from 'react-icons/fi';
 
-// ✅ Configs defined once, outside component
 const deviceConfigs = [
   { type: 'PC', icon: FiMonitor },
   { type: 'Router', icon: FiCpu },
@@ -18,98 +17,104 @@ const deviceConfigs = [
   { type: 'Cloud', icon: FiCloud }
 ];
 
-// ✅ Helper function to render device-specific forms
-const getFormForDevice = (type, addNode, deleteNode) => {
-  switch (type) {
-    case 'Server':
-      return (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
-          }}
-        >
-          <Stack spacing={1}>
-            <Input placeholder="Server name" name="server_name" required />
-            <Input placeholder="IP address" name="ip_address" />
-            <Button type="submit" variant="solid">
-              Add Server
-            </Button>
-          </Stack>
-        </form>
-      );
+const getFormForDevice = (type, addNode, deleteNode, editingNode, updateNode) => {
+  const defaults = editingNode?.data || {};
+  const isEditing = editingNode?.data?.label === type;
 
-    case 'PC':
-      return (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const formJson = Object.fromEntries(formData.entries());
+    if (isEditing) {
+      updateNode(editingNode.id, {
+        ...formJson,
+        icon: React.createElement(
+          deviceConfigs.find((config) => type === config?.type).icon
+        )
+      });
+    } else {
+      addNode(type, {
+        ...formJson,
+        deleteNode: deleteNode,
+        icon: React.createElement(
+          deviceConfigs.find((config) => type === config?.type).icon
+        )
+      });
+    }
+    event.currentTarget.reset();
+  };
 
-          }}
-        >
-          <Stack spacing={1}>
-            <Input placeholder="Hostname" name="hostname" required />
-            <Input placeholder="User" name="user" />
-            <Button type="submit" variant="solid">
-              Add PC
-            </Button>
-          </Stack>
-        </form>
-      );
-
-    case 'Router':
-      return (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
-
-          }}
-        >
-          <Stack spacing={1}>
-            <Input placeholder="Router name" name="router_name" required />
-            <Input placeholder="Ports" name="ports" />
-            <Button type="submit" variant="solid">
-              Add Router
-            </Button>
-          </Stack>
-        </form>
-      );
-
-    case 'Cloud':
-      return (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
-          }}
-        >
-          <Stack spacing={1}>
-            <Input placeholder="Provider" name="provider" required />
-            <Input placeholder="Region" name="region" />
-            <Button type="submit" variant="solid">
-              Add Cloud
-            </Button>
-          </Stack>
-        </form>
-      );
-
-    default:
-      return null;
-  }
+  return (
+    <form onSubmit={handleSubmit}>
+      <Stack spacing={1}>
+        {type === 'Server' && (
+          <>
+            <Input
+              placeholder="Server name"
+              name="server_name"
+              defaultValue={defaults.server_name}
+              required
+            />
+            <Input
+              placeholder="IP address"
+              name="ip_address"
+              defaultValue={defaults.ip_address}
+            />
+          </>
+        )}
+        {type === 'PC' && (
+          <>
+            <Input
+              placeholder="Hostname"
+              name="hostname"
+              defaultValue={defaults.hostname}
+              required
+            />
+            <Input placeholder="User" name="user" defaultValue={defaults.user} />
+          </>
+        )}
+        {type === 'Router' && (
+          <>
+            <Input
+              placeholder="Router name"
+              name="router_name"
+              defaultValue={defaults.router_name}
+              required
+            />
+            <Input placeholder="Ports" name="ports" defaultValue={defaults.ports} />
+          </>
+        )}
+        {type === 'Cloud' && (
+          <>
+            <Input
+              placeholder="Provider"
+              name="provider"
+              defaultValue={defaults.provider}
+              required
+            />
+            <Input
+              placeholder="Region"
+              name="region"
+              defaultValue={defaults.region}
+            />
+          </>
+        )}
+        <Button type="submit" variant="solid">
+          {isEditing ? 'Update' : `Add ${type}`}
+        </Button>
+      </Stack>
+    </form>
+  );
 };
 
-const SideActions = ({ addNode, deleteNode }) => {
+const SideActions = ({ addNode, deleteNode, editingNode, updateNode }) => {
   const [expanded, setExpanded] = useState(null);
+
+  useEffect(() => {
+    if (editingNode) {
+      setExpanded(editingNode.data.label);
+    }
+  }, [editingNode]);
 
   return (
     <div
@@ -131,7 +136,7 @@ const SideActions = ({ addNode, deleteNode }) => {
       }}
     >
       <h3 style={{ marginBottom: 10, fontWeight: 'bold', marginLeft: 10 }}>
-        Add Device
+        {editingNode ? 'Edit Device' : 'Add Device'}
       </h3>
 
       <AccordionGroup sx={{ maxWidth: 400 }}>
@@ -150,8 +155,14 @@ const SideActions = ({ addNode, deleteNode }) => {
               </div>
             </AccordionSummary>
             <AccordionDetails>
-              <div style={{paddingTop: 10, paddingBottom: 10}}>
-                {getFormForDevice(device.type, addNode, deleteNode)}
+              <div style={{ paddingTop: 10, paddingBottom: 10 }}>
+                {getFormForDevice(
+                  device.type,
+                  addNode,
+                  deleteNode,
+                  editingNode,
+                  updateNode
+                )}
               </div>
             </AccordionDetails>
           </Accordion>
