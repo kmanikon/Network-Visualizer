@@ -4,6 +4,7 @@ import {
 } from '@mui/joy';
 import {
   ReactFlow,
+  useReactFlow,
   MiniMap,
   Controls,
   Background,
@@ -169,6 +170,7 @@ const DeviceNode = ({ id, data, selected }) => {
 };
 
 const FlowBoard = () => {
+  const { fitView } = useReactFlow();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const proOptions = { hideAttribution: true };
@@ -192,7 +194,8 @@ const FlowBoard = () => {
 
     setNodes(parsedData?.nodes)
     setEdges(parsedData?.edges)
-  }, [])
+    fitView({ duration: 1000, padding: 0.8})
+  }, []);
 
   useEffect(() => {
     //id = nodeTypes.length + 1
@@ -322,6 +325,7 @@ const FlowBoard = () => {
         nodeTypes={nodeTypes}
         connectionLineType="step"
         connectionMode="loose"
+        defaultViewport={{x: 0, y: 0, zoom: 1}}
       >
         <MiniMap
           style={{
