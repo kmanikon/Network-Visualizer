@@ -19,7 +19,7 @@ const deviceConfigs = [
 ];
 
 // ✅ Helper function to render device-specific forms
-const getFormForDevice = (type, addNode) => {
+const getFormForDevice = (type, addNode, deleteNode) => {
   switch (type) {
     case 'Server':
       return (
@@ -28,7 +28,7 @@ const getFormForDevice = (type, addNode) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
           }}
         >
           <Stack spacing={1}>
@@ -48,7 +48,7 @@ const getFormForDevice = (type, addNode) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
 
           }}
         >
@@ -69,7 +69,7 @@ const getFormForDevice = (type, addNode) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
 
           }}
         >
@@ -90,7 +90,7 @@ const getFormForDevice = (type, addNode) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            addNode(type, { ...formJson, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
+            addNode(type, { ...formJson, deleteNode: deleteNode, icon: React.createElement(deviceConfigs.find((config) => type === config?.type).icon) })
           }}
         >
           <Stack spacing={1}>
@@ -108,7 +108,7 @@ const getFormForDevice = (type, addNode) => {
   }
 };
 
-const SideActions = ({ addNode }) => {
+const SideActions = ({ addNode, deleteNode }) => {
   const [expanded, setExpanded] = useState(null);
 
   return (
@@ -151,7 +151,7 @@ const SideActions = ({ addNode }) => {
             </AccordionSummary>
             <AccordionDetails>
               <div style={{paddingTop: 10, paddingBottom: 10}}>
-                {getFormForDevice(device.type, addNode)}
+                {getFormForDevice(device.type, addNode, deleteNode)}
               </div>
             </AccordionDetails>
           </Accordion>

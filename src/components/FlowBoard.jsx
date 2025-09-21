@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react';
 import {
+  IconButton
+} from '@mui/joy';
+import {
   ReactFlow,
   MiniMap,
   Controls,
@@ -15,6 +18,10 @@ import {
 
 import SideActions from './SideActions';
 import { FiCpu, FiServer, FiCloud, FiMonitor } from 'react-icons/fi';
+import { AiOutlineClose, AiOutlineEdit  } from "react-icons/ai";
+
+
+
 
 //import 'reactflow/dist/style.css';
 import '@xyflow/react/dist/style.css';
@@ -30,8 +37,14 @@ const initialEdges = []//[{ id: 'e1-2', source: '1', target: '2' }];
 let id = 1;
 const getId = () => `node-${id++}`;
 
+const excludedFields = [
+  'editNode',
+  'deleteNode',
+  'label',
+  'icon'
+]
 // Custom node component with more detail
-const DeviceNode = ({ data, selected }) => {
+const DeviceNode = ({ id, data, selected }) => {
   return (
     <div
       style={{
@@ -91,7 +104,7 @@ const DeviceNode = ({ data, selected }) => {
       <div style={{ padding: 10, background: '#fafafa' }}>
         { Object.keys(data)
           .map((key) => ({ field_name: key, field_val: data[key]}))
-          .filter((val) => val.field_name != 'label' && val.field_name != 'icon')
+          .filter((val) =>  !excludedFields.includes(val.field_name))
           .map((val, i) => (
             <div key={i} style={{display: 'flex', alignItems: 'center', gap: 5}}>
             <div style={{ fontSize: 14, color: '#272727ff' }}>
@@ -113,18 +126,21 @@ const DeviceNode = ({ data, selected }) => {
         style={{
           display: 'flex',
           justifyContent: 'flex-end',
-          gap: 8,
-          padding: '6px 8px',
+          //gap: 8,
+          padding: '0px 8px',
           borderTop: '1px solid #eee',
-          background: '#fff'
+          alightItems: 'center',
+          //background: '#fff'
+          //height: 40
+          background: '#fafafa'
         }}
       >
-        <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
-          ⚙️
-        </button>
-        <button style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
-          ❌
-        </button>
+        <IconButton size="sm">
+          <AiOutlineEdit/>
+        </IconButton>
+        <IconButton size="sm" onClick={() => data.deleteNode(id)}>
+          <AiOutlineClose/>
+        </IconButton>
       </div>
 
       {/* Handles */}
@@ -179,6 +195,11 @@ const FlowBoard = ({}) => {
       ]);
     }, [setNodes]);
 
+    const deleteNode = useCallback((nodeId) => {
+      setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+      setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+    }, [setNodes, setEdges]);
+
 
     // Map type to icon
     const getIcon = (type) => {
@@ -197,30 +218,22 @@ const FlowBoard = ({}) => {
     };
 
     // Handle connecting edges
-    // const onConnect = useCallback(
-    //   (params) =>
-    //     setEdges((eds) =>
-    //       addEdge({ ...params, animated: true, markerEnd: { type: MarkerType.Arrow } }, eds)
-    //     ),
-    //   [setEdges]
-    // );
-
-   const onConnect = useCallback(
-  (params) =>
-    setEdges((eds) =>
-      addEdge(
-        {
-          ...params,
-          id: `e-${params.source}-${params.target}-${Date.now()}`,
-          animated: true,
-          markerEnd: { type: MarkerType.Arrow },
-          type: 'step'
-        },
-        eds
-      )
-    ),
-  [setEdges]
-);
+    const onConnect = useCallback(
+      (params) =>
+        setEdges((eds) =>
+          addEdge(
+            {
+              ...params,
+              id: `e-${params.source}-${params.target}-${Date.now()}`,
+              animated: true,
+              markerEnd: { type: MarkerType.Arrow },
+              type: 'step'
+            },
+            eds
+          )
+        ),
+      [setEdges]
+    );
 
 
     //const onConnect = useCallback((params) => setEdges(addEdge(params, edges)), [edges]);
@@ -251,7 +264,7 @@ const FlowBoard = ({}) => {
           tabIndex={0}
           onKeyDown={onNodeDelete}
         >
-            <SideActions addNode={addNode} />
+            <SideActions addNode={addNode} deleteNode={deleteNode}/>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
