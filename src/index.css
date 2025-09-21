@@ -41,6 +41,10 @@ body {
     display: none !important;
 }
 
+.react-flow__pane {
+  cursor: default !important;
+}
+
 .root {
     margin: 0px;
 }

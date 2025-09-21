@@ -65,11 +65,12 @@ const DeviceNode = ({ id, data, selected }) => {
         boxShadow: selected
           ? '0 0 8px rgba(0, 119, 255, 0.4)'
           : '0 2px 6px rgba(0,0,0,0.15)',
-        width: 160,
+        minWidth: 160,
+        maxWidth: 420,
         fontFamily: 'sans-serif',
         fontSize: 13,
         overflow: 'hidden',
-        position: 'relative'
+        position: 'relative',
       }}
     >
       {/* Header */}
@@ -125,11 +126,11 @@ const DeviceNode = ({ id, data, selected }) => {
           .map((key) => ({ field_name: key, field_val: data[key] }))
           .filter((val) => !excludedFields.includes(val.field_name))
           .map((val, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
               <div style={{ fontSize: 14, color: '#272727ff' }}>
                 <b>{val.field_name}:</b>
               </div>
-              <div style={{ fontSize: 14, color: '#555' }}>{val.field_val}</div>
+              <div style={{ fontSize: 14, color: '#555', wordBreak: 'break-all', fontWeight: 600, fontFamily: 'monospace' }}>{val.field_val}</div>
             </div>
           ))}
       </div>
@@ -209,7 +210,7 @@ const FlowBoard = () => {
         ...nds,
         {
           id: getId(),
-          position: { x: 200, y: 200 },
+          position: { x: 200, y: 200 }, //{ x: flowCenter.x, y: flowCenter.y },
           type: 'custom',
           data: { label: type, iconType: type, ...formData }
         }
