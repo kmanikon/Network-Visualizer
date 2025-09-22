@@ -8,9 +8,11 @@ import {
   Stack,
   Button,
   Select,
-  Option
+  Option,
+  IconButton
 } from '@mui/joy';
 import { FiCpu, FiServer, FiCloud, FiMonitor } from 'react-icons/fi';
+import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
 
 const deviceConfigs = [
   { type: 'PC', icon: FiMonitor },
@@ -111,6 +113,7 @@ const getFormForDevice = (type, addNode, deleteNode, editingNode, updateNode) =>
 
 const SideActions = ({ addNode, deleteNode, editingNode, updateNode }) => {
   const [expanded, setExpanded] = useState('PC');
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     if (editingNode) {
@@ -124,7 +127,7 @@ const SideActions = ({ addNode, deleteNode, editingNode, updateNode }) => {
         position: 'absolute',
         top: '12.5%',
         right: 20,
-        height: '80%',
+        height: collapsed ? '60px': '80%',
         width: '260px',
         background: '#FFFFFF',
         zIndex: 2,
@@ -134,12 +137,19 @@ const SideActions = ({ addNode, deleteNode, editingNode, updateNode }) => {
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
-        overflow: 'auto'
+        overflow: collapsed ? 'hidden' : 'auto',
+        pointerEvents: collapsed ? 'none': 'auto'
       }}
     >
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
       <h3 style={{ marginBottom: 10, fontWeight: 'bold', marginLeft: 10 }}>
         {editingNode ? 'Edit Device' : 'Add Device'}
       </h3>
+      <IconButton style={{ marginTop: 12.5, marginRight: 5, pointerEvents: 'auto' }} onClick={() => setCollapsed(!collapsed)}>
+        {collapsed ?   <CiCirclePlus fontSize={20}/>   :   <CiCircleMinus fontSize={20}/>}
+ 
+      </IconButton>
+      </div>
 
       <AccordionGroup sx={{ maxWidth: 400 }}>
         {deviceConfigs.map((device, i) => (
