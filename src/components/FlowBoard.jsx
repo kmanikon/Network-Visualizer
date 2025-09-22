@@ -1,7 +1,6 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { 
+import React, { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import {
   IconButton,
-  Tooltip
 } from '@mui/joy';
 import {
   ReactFlow,
@@ -25,18 +24,13 @@ import { AiOutlineClose, AiOutlineEdit } from "react-icons/ai";
 
 import '@xyflow/react/dist/style.css';
 
-// const initialNodes = [];
-// const initialEdges = [];
-
 // Unique ID generator
-//let id = 1;
-//const getId = () => `node-${id++}`;
 const getId = () => `node-${new Date()}`
 
 const excludedFields = [
-  'editNode', 
-  'deleteNode', 
-  'label', 
+  'editNode',
+  'deleteNode',
+  'label',
   'iconType',
   'icon'
 ];
@@ -58,14 +52,14 @@ const CopyableText = ({ text }) => {
         zIndex: 2
       }}
     >
-      <span 
+      <span
         style={{
-          flex: 1, 
+          flex: 1,
           whiteSpace: 'pre-wrap'
         }}
       >
         {text}
-      </span> 
+      </span>
       <IconButton
         className="copy-btn"
         variant="plain"
@@ -75,15 +69,15 @@ const CopyableText = ({ text }) => {
         }}
         title="Copy to clipboard"
         style={{
-          minHeight: 0, 
-          minWidth: 0, 
-          lineHeight: 10, 
-          verticalAlign: 'text-bottom', 
-          marginLeft: 5, 
+          minHeight: 0,
+          minWidth: 0,
+          lineHeight: 10,
+          verticalAlign: 'text-bottom',
+          marginLeft: 5,
           //opacity: 0.8 
         }}
       >
-        <FiCopy size={14} style={{display: 'flex', alignItems: 'center'}}/>
+        <FiCopy size={14} style={{ display: 'flex', alignItems: 'center' }} />
       </IconButton>
     </div>
   );
@@ -136,10 +130,10 @@ const DeviceNode = ({ id, data, selected }) => {
           background: data.label === 'PC'
             ? 'linear-gradient(135deg, #5e35b1, #3949ab)'     // indigo
             : data.label === 'Server'
-            ? 'linear-gradient(135deg, #ad1457, #880e4f)'     // magenta/wine
-            : data.label === 'Router'
-            ? 'linear-gradient(135deg, #00897b, #00695c)'     // teal (contrast)
-            : 'linear-gradient(135deg, #8e24aa, #6a1b9a)',    // purple default
+              ? 'linear-gradient(135deg, #ad1457, #880e4f)'     // magenta/wine
+              : data.label === 'Router'
+                ? 'linear-gradient(135deg, #00897b, #00695c)'     // teal (contrast)
+                : 'linear-gradient(135deg, #8e24aa, #6a1b9a)',    // purple default
 
           color: '#fff',
           padding: '6px 10px',
@@ -163,8 +157,8 @@ const DeviceNode = ({ id, data, selected }) => {
               data.status === 'online'
                 ? '#4caf50'
                 : data.status === 'offline'
-                ? '#f44336'
-                : '#ff9800',
+                  ? '#f44336'
+                  : '#ff9800',
             display: 'inline-block'
           }}
         />
@@ -182,9 +176,9 @@ const DeviceNode = ({ id, data, selected }) => {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 14, color: '#555', wordBreak: 'break-all', fontWeight: 600, fontFamily: 'monospace' }}>
                 <div>
-                  <CopyableText text={val.field_val}/>
-               
-                </div>  
+                  <CopyableText text={val.field_val} />
+
+                </div>
               </div>
             </div>
           ))}
@@ -201,16 +195,16 @@ const DeviceNode = ({ id, data, selected }) => {
         }}
       >
         <IconButton size="sm" onClick={(e) => {
-            e.stopPropagation()
-            data.editNode(id)
-          }}
+          e.stopPropagation()
+          data.editNode(id)
+        }}
         >
           <AiOutlineEdit />
         </IconButton>
         <IconButton size="sm" onClick={(e) => {
-            e.stopPropagation()
-            data.deleteNode(id)
-          }}
+          e.stopPropagation()
+          data.deleteNode(id)
+        }}
         >
           <AiOutlineClose />
         </IconButton>
@@ -258,23 +252,79 @@ const FlowBoard = () => {
 
     setNodes(parsedData?.nodes || [])
     setEdges(parsedData?.edges || [])
-    fitView({ duration: 1000, padding: 0.8})
-  }, []);
+    fitView({ duration: 1000, padding: 0.8 })
+  }, [searchParams]);
 
   const updateUrl = useMemo(
     () =>
       debounce((nodes, edges) => {
-        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify({ nodes, edges }));
-        setSearchParams({ flow: compressed });
-        //window.history.pushState(compressed, '', `?flow=${compressed}`);
-      }, 500), // 500ms debounce
-    [setSearchParams]
+        const cleanNodes = nodes.map(({ id, type, position, data }) => ({
+          id,
+          type,
+          position,
+          data: Object.fromEntries(Object.entries(data).filter(([k, v]) => typeof v !== 'function'))
+        }));
+
+        const cleanEdges = edges.map(({ id, source, target, type, markerEnd, animated }) => ({
+          id,
+          source,
+          target,
+          type,
+          markerEnd,
+          animated,
+        }));
+
+        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify({ nodes: cleanNodes, edges: cleanEdges }));
+
+        if (window.location.search !== `?flow=${compressed}`) {
+          window.history.pushState(null, '', `?flow=${compressed}`);
+        }
+      }, 0),
+    []
   );
 
+
+
+
+  // useEffect(() => {
+  //   updateUrl(nodes, edges);
+  //   return () => updateUrl.cancel(); // cancel any pending calls on cleanup
+  // }, [nodes, edges, updateUrl]);
+
+  const lastStructuralSignature = useRef(null);
+
   useEffect(() => {
-    updateUrl(nodes, edges);
-    return () => updateUrl.cancel(); // cancel any pending calls on cleanup
+    const structuralNodes = nodes.map(({ id, type, data }) => ({ id, type, data }));
+    const structuralEdges = edges.map(({ id, source, target, type, markerEnd }) => ({ id, source, target, type, markerEnd }));
+
+    const currentSignature = JSON.stringify({ nodes: structuralNodes, edges: structuralEdges });
+
+    if (lastStructuralSignature.current !== currentSignature) {
+      updateUrl(nodes, edges);
+      lastStructuralSignature.current = currentSignature;
+    }
   }, [nodes, edges, updateUrl]);
+
+
+  // at top of FlowBoard
+  useEffect(() => {
+    const onPopState = () => {
+      const compressed = window.location.search.split('flow=')[1];
+      if (!compressed) return;
+      const parsedData = JSON.parse(LZString.decompressFromEncodedURIComponent(compressed));
+      if (parsedData) {
+        setNodes(parsedData.nodes || []);
+        setEdges(parsedData.edges || []);
+        fitView({ duration: 500, padding: 0.8 });
+      }
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [setNodes, setEdges, fitView]);
+
+
+
 
   const addNode = useCallback(
     (type, formData) => {
@@ -320,9 +370,9 @@ const FlowBoard = () => {
         nds?.map((n) =>
           n.id === nodeId
             ? {
-                ...n,
-                data: { ...n.data, ...updates }
-              }
+              ...n,
+              data: { ...n.data, ...updates }
+            }
             : n
         )
       );
@@ -369,7 +419,7 @@ const FlowBoard = () => {
       if (event.key === 'Delete' || event.key === 'Backspace') {
         setNodes((nds) => nds.filter((n) => !n.selected));
         setEdges((eds) => eds.filter((e) => !e.selected));
-      }      
+      }
     },
     [setNodes, setEdges]
   );
@@ -384,7 +434,7 @@ const FlowBoard = () => {
         background: '#F0F0F0'
       }}
       tabIndex={0}
-      //onKeyDown={onNodeDelete}
+    //onKeyDown={onNodeDelete}
     >
       <SideActions
         addNode={addNode}
@@ -405,7 +455,7 @@ const FlowBoard = () => {
         nodeTypes={nodeTypes}
         connectionLineType="step"
         connectionMode="loose"
-        defaultViewport={{x: 0, y: 0, zoom: 1}}
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
       >
         <MiniMap
           style={{

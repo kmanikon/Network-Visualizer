@@ -7,7 +7,7 @@ import FlowPage from "./pages/FlowPage";
 import "./App.css";
 
 function App() {
-
+ 
   const [open, setOpen] = useState(false);
 
   const handleExport = async () => {
@@ -46,7 +46,7 @@ function App() {
               fontWeight: 520,
             }}
           >
-            pickle
+            Churro
           </div>
           <div
             style={{
@@ -67,6 +67,9 @@ function App() {
                 backgroundColor: 'transparent', 
                 color: "whitesmoke"
               }}
+              onClick={() => {
+                window.history.back()
+              }}
             >
               <GrUndo variant="plain" fontSize={22}/>
             </IconButton>
@@ -76,6 +79,9 @@ function App() {
               style={{
                 backgroundColor: 'transparent', 
                 color: "whitesmoke"
+              }}
+              onClick={() => {
+                window.history.forward()
               }}
             >
               <GrRedo variant="plain" fontSize={22} />
