@@ -70,6 +70,7 @@ function App() {
               onClick={() => {
                 window.history.back()
               }}
+              disabled
             >
               <GrUndo variant="plain" fontSize={22}/>
             </IconButton>
@@ -83,6 +84,7 @@ function App() {
               onClick={() => {
                 window.history.forward()
               }}
+              disabled
             >
               <GrRedo variant="plain" fontSize={22} />
             </IconButton>
@@ -113,7 +115,7 @@ function App() {
         autoHideDuration={2000}
         color="success"
         variant="soft"
-        anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
+        anchorOrigin={{vertical: 'top', horizontal: 'right'}}
       >
         <FiCheckCircle/>
         Workflow URL copied to clipboard!

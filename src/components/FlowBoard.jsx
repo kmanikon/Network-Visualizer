@@ -154,10 +154,12 @@ const DeviceNode = ({ id, data, selected }) => {
             height: 10,
             borderRadius: '50%',
             background:
-              data.status === 'online'
+              data.status === 'Online'
                 ? '#4caf50'
-                : data.status === 'offline'
+                : data.status === 'Offline'
                   ? '#f44336'
+                  : data.status === 'Maintenance'
+                  ? '#D3D3D3'
                   : '#ff9800',
             display: 'inline-block'
           }}
@@ -221,6 +223,12 @@ const DeviceNode = ({ id, data, selected }) => {
         id="right"
         position={Position.Right}
         style={{ zIndex: 1, pointerEvents: 'auto', background: 'transparent', height: '100%', width: '20%', border: '0px solid transparent' }}
+        isConnectable={true}
+      />
+      <Handle
+        id="bottom"
+        position={Position.Bottom}
+        style={{ zIndex: 1, pointerEvents: 'auto', background: 'transparent', height: '40px', width: '20%', border: '0px solid transparent' }}
         isConnectable={true}
       />
     </div>
