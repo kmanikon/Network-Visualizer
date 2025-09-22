@@ -28,5 +28,8 @@
   .minimap {
     display: none !important;
   }
+  .export-btn {
+    display: none !important;
+  }
 }
 

@@ -113,7 +113,7 @@ const getFormForDevice = (type, addNode, deleteNode, editingNode, updateNode) =>
 
 const SideActions = ({ addNode, deleteNode, editingNode, updateNode }) => {
   const [expanded, setExpanded] = useState('PC');
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(window.innerWidth <= 600 ? true : false);
 
   useEffect(() => {
     if (editingNode) {
