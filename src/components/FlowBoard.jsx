@@ -279,17 +279,10 @@ const FlowBoard = () => {
         if (window.location.search !== `?flow=${compressed}`) {
           window.history.pushState(null, '', `?flow=${compressed}`);
         }
-      }, 0),
+      }, 100),
     []
   );
 
-
-
-
-  // useEffect(() => {
-  //   updateUrl(nodes, edges);
-  //   return () => updateUrl.cancel(); // cancel any pending calls on cleanup
-  // }, [nodes, edges, updateUrl]);
 
   const lastStructuralSignature = useRef(null);
 
@@ -301,8 +294,9 @@ const FlowBoard = () => {
 
     if (lastStructuralSignature.current !== currentSignature) {
       updateUrl(nodes, edges);
-      lastStructuralSignature.current = currentSignature;
+      //lastStructuralSignature.current = currentSignature;
     }
+    lastStructuralSignature.current = currentSignature;
   }, [nodes, edges, updateUrl]);
 
 
