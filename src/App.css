@@ -31,5 +31,8 @@
   .export-btn {
     display: none !important;
   }
+  .title {
+    font-family: 'Courier New', Courier, monospace !important;
+  }
 }
 

@@ -39,6 +39,7 @@ function App() {
           }}
         >
           <div
+            className="title"
             style={{
               color: "whitesmoke",
               fontFamily: "cursive",
