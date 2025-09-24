@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Network-Visualizer/static/css/main.11602fde.css",
+    "main.js": "/Network-Visualizer/static/js/main.7dcd4395.js",
+    "index.html": "/Network-Visualizer/index.html",
+    "main.11602fde.css.map": "/Network-Visualizer/static/css/main.11602fde.css.map",
+    "main.7dcd4395.js.map": "/Network-Visualizer/static/js/main.7dcd4395.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.11602fde.css",
+    "static/js/main.7dcd4395.js"
+  ]
+}
