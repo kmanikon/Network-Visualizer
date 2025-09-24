@@ -106,6 +106,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<FlowPage />} />
+            <Route path="/Network-Visualizer" element={<FlowPage />} />
           </Routes>
         </Router>
       </div>
